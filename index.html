@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THONG Mengsieng</title>
+<meta name="description" content="Portfolio and project notes.">
+
+<!-- ============ ICONS ============ -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)">
+<!-- Runs before paint: if JS is on, drop the no-js class so animations arm. -->
+<script>document.documentElement.classList.remove('no-js');</script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ PRELOADER ============ -->
+<div class="preloader" id="preloader">
+  <div class="pre-inner">
+    <div class="pre-mark">◆</div>
+    <div class="pre-bar"><span class="pre-fill" id="preFill"></span></div>
+    <div class="pre-count" id="preCount">0</div>
+  </div>
+  <div class="pre-curtain c1"></div>
+  <div class="pre-curtain c2"></div>
+</div>
+
+<!-- Reading progress bar, driven by scroll position -->
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<!-- Particle constellation field -->
+<canvas class="field" id="field" aria-hidden="true"></canvas>
+
+<!-- Cursor spotlight: follows the pointer, pure CSS gradient -->
+<div class="spotlight" id="spotlight" aria-hidden="true"></div>
+
+<!-- Custom cursor: instant dot + trailing ring -->
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+<!-- Ambient aurora background -->
+<div class="aurora" aria-hidden="true">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand"><span class="dot"></span>SEANG</a>
+    <nav class="links">
+      <a href="#about">About</a>
+      <a href="#work">Work</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme" title="Toggle theme">
+      <span class="icon-sun">☀</span><span class="icon-moon">☾</span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <div class="hero" id="hero">
+    <div class="wrap" id="heroInner">
+      <div class="kicker anim" style="--i:0">Portfolio · 2026</div>
+
+      <h1 class="anim split" data-split style="--i:1">
+        THONG
+        <span class="grad" id="shimmer">Mengsieng.</span>
+      </h1>
+
+      <p class="lede anim" style="--i:2">
+        Networking, automation, and the occasional web tool. I care about systems
+        that are simple enough to debug at 2am and documented well enough that
+        someone else can.
+      </p>
+
+      <div class="cta anim" style="--i:3">
+        <a href="#work" class="btn primary magnetic"><span>See the work</span></a>
+        <a href="#contact" class="btn ghost magnetic"><span>Get in touch</span></a>
+      </div>
+
+      <div class="stats anim" style="--i:4">
+        <div class="stat">
+          <div class="num" data-count="2" data-suffix="+">0</div>
+          <div class="lbl">Years in the stack</div>
+        </div>
+        <div class="stat">
+          <div class="num" data-count="35" data-suffix="+">0</div>
+          <div class="lbl">Systems shipped</div>
+        </div>
+        <div class="stat">
+          <div class="num" data-count="99" data-suffix="%">0</div>
+          <div class="lbl">Uptime, roughly</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TICKER ============ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>Routing</span><span class="sep">◆</span>
+      <span>Automation</span><span class="sep">◆</span>
+      <span>Linux</span><span class="sep">◆</span>
+      <span>Packet analysis</span><span class="sep">◆</span>
+      <span>Python</span><span class="sep">◆</span>
+      <span>Virtualisation</span><span class="sep">◆</span>
+      <span>Monitoring</span><span class="sep">◆</span>
+      <span>Firewalls</span><span class="sep">◆</span>
+      <span>Routing</span><span class="sep">◆</span>
+      <span>Automation</span><span class="sep">◆</span>
+      <span>Linux</span><span class="sep">◆</span>
+      <span>Packet analysis</span><span class="sep">◆</span>
+      <span>Python</span><span class="sep">◆</span>
+      <span>Virtualisation</span><span class="sep">◆</span>
+      <span>Monitoring</span><span class="sep">◆</span>
+      <span>Firewalls</span><span class="sep">◆</span>
+    </div>
+  </div>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>About</h2>
+        <p>The short version.</p>
+      </div>
+      <div class="about">
+        <div class="reveal" style="--i:0">
+          <p>
+            I work across the stack, but the through-line is infrastructure:
+            networks, servers, and the glue that keeps them talking to each other.
+            Most of what I do is making messy things legible.
+          </p>
+          <p>
+            I keep a lab at home for the things I don't want to learn in
+            production. Virtual machines, routing, the occasional deliberately
+            broken configuration to see how it fails.
+          </p>
+          <p>
+            When I'm not doing that, I'm building small tools that solve one
+            problem well instead of ten problems badly.
+          </p>
+        </div>
+        <div class="facts reveal" style="--i:1">
+          <h3>At a glance</h3>
+          <dl>
+            <dt>Based</dt><dd>Cambodia</dd>
+            <dt>Focus</dt><dd>Networking</dd>
+            <dt>Stack</dt><dd>Python · Node</dd>
+            <dt>Lab</dt><dd>GNS3 · VirtualBox</dd>
+            <dt>Status</dt><dd>Open to work</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WORK ============ -->
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Selected work</h2>
+        <p>Things I've built, broken, and rebuilt.</p>
+      </div>
+      <div class="work">
+        <a href="#" class="work-item reveal" style="--i:0">
+          <span class="yr">2026</span>
+          <span class="body">
+            <span class="t">Telegram bot + Mini App</span>
+            <span class="d">A bot with a signed-identity Mini App front end. HMAC verification on the server, no third-party auth.</span>
+          </span>
+          <span class="go">→</span>
+        </a>
+        <a href="#" class="work-item reveal" style="--i:1">
+          <span class="yr">2026</span>
+          <span class="body">
+            <span class="t">Home lab network</span>
+            <span class="d">Segmented VLANs, a pfSense edge, and a monitoring stack that pages me before my flatmates notice.</span>
+          </span>
+          <span class="go">→</span>
+        </a>
+        <a href="#" class="work-item reveal" style="--i:2">
+          <span class="yr">2025</span>
+          <span class="body">
+            <span class="t">Config automation</span>
+            <span class="d">Python tooling that templates and pushes switch configs, with a dry-run mode that has saved me more than once.</span>
+          </span>
+          <span class="go">→</span>
+        </a>
+        <a href="#" class="work-item reveal" style="--i:3">
+          <span class="yr">2025</span>
+          <span class="body">
+            <span class="t">Packet capture toolkit</span>
+            <span class="d">Scripts that turn a pcap into a readable summary, because reading raw captures is nobody's idea of fun.</span>
+          </span>
+          <span class="go">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SKILLS ============ -->
+  <section id="skills">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <h2>Skills</h2>
+        <p>What I actually reach for.</p>
+      </div>
+      <div class="grid">
+        <div class="card reveal tilt" style="--i:0">
+          <div class="shine"></div>
+          <div class="icon">◈</div>
+          <h3>Networking</h3>
+          <p>Routing, switching, VLANs, firewalls. Design that survives a device dying.</p>
+          <div class="tags"><span class="tag">TCP/IP</span><span class="tag">VLAN</span><span class="tag">pfSense</span><span class="tag">Wireshark</span></div>
+        </div>
+        <div class="card reveal tilt" style="--i:1">
+          <div class="shine"></div>
+          <div class="icon">◆</div>
+          <h3>Automation</h3>
+          <p>Scripting the repetitive parts so I can spend attention on the hard parts.</p>
+          <div class="tags"><span class="tag">Python</span><span class="tag">Bash</span><span class="tag">Ansible</span></div>
+        </div>
+        <div class="card reveal tilt" style="--i:2">
+          <div class="shine"></div>
+          <div class="icon">◇</div>
+          <h3>Systems</h3>
+          <p>Linux servers, virtualisation, and keeping services alive without hand-holding.</p>
+          <div class="tags"><span class="tag">Linux</span><span class="tag">Docker</span><span class="tag">VirtualBox</span></div>
+        </div>
+        <div class="card reveal tilt" style="--i:3">
+          <div class="shine"></div>
+          <div class="icon">▣</div>
+          <h3>Web</h3>
+          <p>Front ends that load fast and back ends that don't fall over.</p>
+          <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span><span class="tag">Node</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <h2 class="reveal">Let's build something.</h2>
+      <p class="reveal" style="--i:1">Open to freelance work, contract roles, and interesting problems that don't have an obvious answer yet.</p>
+      <div class="cta reveal" style="--i:2">
+        <a href="mailto:hello@example.com" class="btn primary magnetic"><span>hello@example.com</span></a>
+      </div>
+      <div class="socials reveal" style="--i:3">
+        <a href="#">GitHub</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">Telegram</a>
+        <a href="#">Résumé</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Seang. Built by hand, no framework.</div>
+</footer>
+
+<!-- Back to top, appears after you scroll -->
+<button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — Not found</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* Page-specific: centre the 404 in the viewport. */
+  .notfound{
+    min-height:100vh;display:grid;place-items:center;
+    text-align:center;padding:40px 24px;
+  }
+  .notfound .code{
+    font-size:clamp(72px,18vw,150px);font-weight:800;line-height:1;
+    letter-spacing:-.05em;
+    background:linear-gradient(100deg,var(--accent),var(--accent-2),var(--accent-3),var(--accent));
+    background-size:300% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shimmer 7s linear infinite;
+  }
+  .notfound h1{font-size:clamp(20px,3.4vw,28px);margin:18px 0 10px;letter-spacing:-.02em}
+  .notfound p{color:var(--dim);max-width:44ch;margin:0 auto 28px}
+  .notfound .cta{justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="notfound">
+  <div class="wrap">
+    <div class="code anim" style="--i:0">404</div>
+    <h1 class="anim" style="--i:1">That page isn't here.</h1>
+    <p class="anim" style="--i:2">
+      The link is broken, or the page moved. Either way, there's nothing at this address.
+    </p>
+    <div class="cta anim" style="--i:3">
+      <a href="index.html" class="btn primary magnetic"><span>Back to the site</span></a>
+    </div>
+  </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>

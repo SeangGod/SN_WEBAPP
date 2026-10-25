@@ -1,0 +1,580 @@
+/* ==========================================================================
+   styles.css — presentation + motion.
+   Sections:
+     1  Theme tokens        6  About
+     2  Reset               7  Cards + tilt
+     3  Ambient layers      8  Work list
+     4  Navigation          9  Contact + footer
+     5  Hero + stats       10  Motion system (keyframes, reveal, reduced-motion)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. THEME TOKENS
+   -------------------------------------------------------------------------- */
+:root{
+  --bg:#0b0d12;
+  --panel:#141821;
+  --panel-2:#1b202b;
+  --line:#272d3a;
+  --ink:#e9edf5;
+  --dim:#98a2b4;
+  --accent:#c48c32;
+  --accent-2:#6fb3ff;
+  --accent-3:#c86fd6;
+  --accent-ink:#1a1305;
+  --glow:rgba(224,164,74,.30);
+  --shadow:0 18px 44px rgba(0,0,0,.46);
+  --radius:14px;
+  --maxw:1080px;
+  --ease:cubic-bezier(.22,.68,.32,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
+
+[data-theme="light"]{
+  --bg:#fbfaf7;
+  --panel:#ffffff;
+  --panel-2:#f3f1eb;
+  --line:#e2ded4;
+  --ink:#1b1d22;
+  --dim:#6a7280;
+  --accent:#b57514;
+  --accent-2:#2563c9;
+  --accent-3:#8b3fa0;
+  --accent-ink:#ffffff;
+  --glow:rgba(181,117,20,.22);
+  --shadow:0 18px 44px rgba(20,20,30,.12);
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET
+   -------------------------------------------------------------------------- */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font:16px/1.7 ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  transition:background .3s ease,color .3s ease;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;position:relative;z-index:2}
+
+/* Scroll lock while the preloader is on screen. */
+body.locked{overflow:hidden}
+
+/* --------------------------------------------------------------------------
+   3. AMBIENT LAYERS — canvas field, aurora blobs, grain, spotlight, cursor
+   -------------------------------------------------------------------------- */
+
+/* Particle constellation, drawn by script.js. */
+.field{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  width:100%;height:100%;opacity:.85;
+}
+
+/* Slow-drifting color fields behind everything. */
+.aurora{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  opacity:.55;filter:blur(90px);
+}
+.blob{position:absolute;border-radius:50%;display:block;will-change:transform}
+.b1{
+  width:46vw;height:46vw;left:-10vw;top:-12vw;
+  background:radial-gradient(circle,var(--accent),transparent 68%);
+  animation:drift1 26s var(--ease) infinite alternate;
+}
+.b2{
+  width:40vw;height:40vw;right:-8vw;top:18vh;
+  background:radial-gradient(circle,var(--accent-2),transparent 68%);
+  animation:drift2 32s var(--ease) infinite alternate;
+}
+.b3{
+  width:34vw;height:34vw;left:32vw;bottom:-14vw;
+  background:radial-gradient(circle,var(--accent-3),transparent 70%);
+  animation:drift3 38s var(--ease) infinite alternate;
+}
+
+@keyframes drift1{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(9vw,7vh,0) scale(1.16)}
+  100%{transform:translate3d(-4vw,13vh,0) scale(.94)}
+}
+@keyframes drift2{
+  0%{transform:translate3d(0,0,0) scale(1.05)}
+  50%{transform:translate3d(-11vw,9vh,0) scale(.9)}
+  100%{transform:translate3d(5vw,-6vh,0) scale(1.2)}
+}
+@keyframes drift3{
+  0%{transform:translate3d(0,0,0) scale(.95)}
+  50%{transform:translate3d(7vw,-11vh,0) scale(1.18)}
+  100%{transform:translate3d(-9vw,4vh,0) scale(1)}
+}
+
+/* Film grain — stops the gradients from looking like plastic. */
+.grain{
+  position:fixed;inset:-200%;z-index:1;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 7s steps(6) infinite;
+}
+@keyframes grain{
+  0%,100%{transform:translate(0,0)}
+  20%{transform:translate(-3%,2%)}
+  40%{transform:translate(2%,-3%)}
+  60%{transform:translate(-2%,-2%)}
+  80%{transform:translate(3%,3%)}
+}
+
+/* Cursor spotlight. Position is set by script.js. */
+.spotlight{
+  position:fixed;top:0;left:0;width:620px;height:620px;z-index:1;
+  pointer-events:none;opacity:0;border-radius:50%;
+  background:radial-gradient(circle,var(--glow),transparent 62%);
+  transform:translate(-50%,-50%);
+  transition:opacity .5s ease;
+  will-change:transform;
+}
+.spotlight.on{opacity:1}
+
+/* Reading progress bar. */
+.progress{
+  position:fixed;top:0;left:0;height:2px;width:0;z-index:100;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-3));
+  box-shadow:0 0 14px var(--glow);
+  transition:width .1s linear;
+}
+
+/* --------------------------------------------------------------------------
+   3b. CUSTOM CURSOR — instant dot, trailing ring
+   The native cursor stays visible; these sit on top of it.
+   -------------------------------------------------------------------------- */
+.cursor-dot,
+.cursor-ring{
+  position:fixed;top:0;left:0;z-index:9999;pointer-events:none;
+  border-radius:50%;opacity:0;
+  transition:opacity .3s ease;
+  will-change:transform;
+}
+.cursor-dot{
+  width:6px;height:6px;background:var(--accent);
+  transform:translate(-50%,-50%);
+}
+.cursor-ring{
+  width:34px;height:34px;border:1.5px solid var(--accent);
+  transform:translate(-50%,-50%);
+  transition:opacity .3s ease,width .3s var(--ease-out),height .3s var(--ease-out),
+             background-color .3s ease,border-color .3s ease;
+}
+.cursor-ring.grow{
+  width:62px;height:62px;
+  background-color:color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color:var(--accent-2);
+}
+body.cursor-on .cursor-dot,
+body.cursor-on .cursor-ring{opacity:1}
+
+/* --------------------------------------------------------------------------
+   3c. PRELOADER
+   Counter runs 0-100, then two curtains slide away and the page is revealed.
+   -------------------------------------------------------------------------- */
+.preloader{
+  position:fixed;inset:0;z-index:10000;
+  display:grid;place-items:center;
+  background:var(--bg);
+}
+.pre-inner{
+  position:relative;z-index:2;text-align:center;
+  transition:opacity .5s ease,transform .5s var(--ease-out);
+}
+.pre-mark{
+  font-size:34px;color:var(--accent);margin-bottom:22px;
+  animation:preSpin 3.4s var(--ease) infinite;
+  display:inline-block;
+}
+@keyframes preSpin{
+  0%,100%{transform:rotate(0deg) scale(1);opacity:.75}
+  50%{transform:rotate(180deg) scale(1.18);opacity:1}
+}
+.pre-bar{
+  width:210px;height:2px;background:var(--line);border-radius:2px;
+  overflow:hidden;margin:0 auto;
+}
+.pre-fill{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+}
+.pre-count{
+  margin-top:14px;font-size:12px;letter-spacing:.24em;
+  color:var(--dim);font-variant-numeric:tabular-nums;
+}
+
+/* The two curtains that wipe away. */
+.pre-curtain{
+  position:absolute;left:0;width:100%;height:50.5%;
+  background:var(--bg);
+  transition:transform .85s cubic-bezier(.76,0,.24,1);
+}
+.pre-curtain.c1{top:0}
+.pre-curtain.c2{bottom:0}
+
+.preloader.done .pre-inner{opacity:0;transform:translateY(-14px)}
+.preloader.done .pre-curtain.c1{transform:translateY(-100%)}
+.preloader.done .pre-curtain.c2{transform:translateY(100%)}
+.preloader.done{pointer-events:none}
+
+/* --------------------------------------------------------------------------
+   3d. SPLIT-TEXT REVEAL
+   script.js wraps each word in a span; these animate them up in sequence.
+   -------------------------------------------------------------------------- */
+.split .word{
+  display:inline-block;overflow:hidden;
+  vertical-align:top;
+}
+.split .word > span{
+  display:inline-block;
+  transform:translateY(105%) rotate(4deg);
+  opacity:0;
+  animation:wordUp .95s var(--ease-out) forwards;
+  animation-delay:calc(var(--wi,0) * 55ms + 320ms);
+}
+@keyframes wordUp{
+  to{transform:translateY(0) rotate(0deg);opacity:1}
+}
+/* The gradient span inside the h1 must not be broken by the wrapper. */
+.split .grad .word > span{
+  background:inherit;
+  -webkit-background-clip:text;background-clip:text;
+}
+
+/* --------------------------------------------------------------------------
+   4. NAVIGATION
+   -------------------------------------------------------------------------- */
+header.nav{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:blur(14px) saturate(1.4);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;gap:18px}
+
+.brand{
+  font-weight:800;letter-spacing:-.02em;font-size:17px;
+  display:flex;align-items:center;gap:9px;white-space:nowrap;
+}
+.brand .dot{
+  width:9px;height:9px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 12px var(--accent);
+  animation:pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 8px var(--accent);transform:scale(1)}
+  50%{box-shadow:0 0 20px var(--accent);transform:scale(1.25)}
+}
+
+nav.links{display:flex;gap:26px;font-size:14.5px;color:var(--dim);margin-left:auto}
+nav.links a{position:relative;transition:color .2s}
+nav.links a::after{
+  content:"";position:absolute;left:0;bottom:-5px;height:1.5px;width:100%;
+  background:var(--accent);transform:scaleX(0);transform-origin:right;
+  transition:transform .32s var(--ease-out);
+}
+nav.links a:hover{color:var(--ink)}
+nav.links a:hover::after{transform:scaleX(1);transform-origin:left}
+nav.links a.active{color:var(--ink)}
+nav.links a.active::after{transform:scaleX(1)}
+
+.theme-toggle{
+  width:38px;height:38px;flex:0 0 38px;
+  display:grid;place-items:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  color:var(--dim);font-size:16px;cursor:pointer;
+  transition:border-color .2s,color .2s,transform .3s var(--ease-out);
+}
+.theme-toggle:hover{border-color:var(--accent);color:var(--ink);transform:translateY(-2px) rotate(-12deg)}
+.theme-toggle:active{transform:scale(.9)}
+.theme-toggle .icon-sun{display:none}
+.theme-toggle .icon-moon{display:block}
+[data-theme="light"] .theme-toggle .icon-sun{display:block}
+[data-theme="light"] .theme-toggle .icon-moon{display:none}
+
+@media(max-width:640px){nav.links{display:none}}
+
+/* --------------------------------------------------------------------------
+   5. HERO + STATS
+   -------------------------------------------------------------------------- */
+.hero{padding:104px 0 76px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+
+.kicker{
+  color:var(--accent);font-size:12px;font-weight:800;
+  letter-spacing:.2em;text-transform:uppercase;margin-bottom:18px;
+}
+
+h1{
+  font-size:clamp(34px,6vw,58px);line-height:1.08;
+  letter-spacing:-.03em;font-weight:800;max-width:16ch;
+}
+
+/* Animated gradient text. Background is oversized and slides. */
+.grad{
+  background:linear-gradient(100deg,var(--accent),var(--accent-2),var(--accent-3),var(--accent));
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shimmer 7s linear infinite;
+}
+@keyframes shimmer{
+  0%{background-position:0% 50%}
+  100%{background-position:300% 50%}
+}
+
+.lede{margin-top:22px;font-size:18px;color:var(--dim);max-width:58ch}
+
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
+
+/* Buttons. The .magnetic class is driven by script.js (it translates the
+   element toward the cursor); CSS only handles the shine sweep. */
+.btn{
+  position:relative;display:inline-block;padding:12px 22px;border-radius:9px;
+  font-size:14.5px;font-weight:700;overflow:hidden;isolation:isolate;
+  transition:transform .3s var(--ease-out),filter .2s,border-color .2s,box-shadow .3s;
+  will-change:transform;
+}
+.btn span{position:relative;z-index:2}
+.btn::before{
+  content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.42) 50%,transparent 70%);
+  transform:translateX(-130%);
+  transition:transform .75s var(--ease-out);
+}
+.btn:hover::before{transform:translateX(130%)}
+.btn.primary{
+  background:var(--accent);color:var(--accent-ink);
+  box-shadow:0 8px 26px -8px var(--glow);
+}
+.btn.primary:hover{filter:brightness(1.08);box-shadow:0 16px 38px -10px var(--glow)}
+.btn.ghost{border:1px solid var(--line);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--accent);box-shadow:0 12px 30px -14px var(--glow)}
+.btn:active{transform:scale(.96)}
+
+/* Stats row */
+.stats{
+  display:flex;gap:44px;flex-wrap:wrap;margin-top:52px;
+  padding-top:30px;border-top:1px solid var(--line);
+}
+.stat .num{
+  font-size:32px;font-weight:800;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;
+  background:linear-gradient(120deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.stat .lbl{font-size:13px;color:var(--dim);margin-top:2px}
+
+/* --------------------------------------------------------------------------
+   TICKER — infinite marquee
+   -------------------------------------------------------------------------- */
+.ticker{
+  overflow:hidden;border-bottom:1px solid var(--line);
+  padding:16px 0;position:relative;z-index:2;
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+}
+.ticker-track{
+  display:flex;gap:26px;width:max-content;
+  animation:marquee 34s linear infinite;
+  color:var(--dim);font-size:13.5px;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:700;
+}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker .sep{color:var(--accent);opacity:.7}
+@keyframes marquee{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+
+/* --------------------------------------------------------------------------
+   6. SECTIONS + ABOUT
+   -------------------------------------------------------------------------- */
+section{padding:80px 0;border-bottom:1px solid var(--line);position:relative;z-index:2}
+section:last-of-type{border-bottom:0}
+.sec-head{margin-bottom:38px}
+.sec-head h2{font-size:26px;letter-spacing:-.02em;font-weight:800}
+.sec-head p{color:var(--dim);margin-top:8px;font-size:15.5px}
+
+.about{display:grid;grid-template-columns:1.4fr 1fr;gap:44px;align-items:start}
+@media(max-width:760px){.about{grid-template-columns:1fr;gap:30px}}
+.about p{color:var(--ink);opacity:.86;margin-bottom:16px}
+
+.facts{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px;
+  transition:transform .4s var(--ease-out),border-color .3s,box-shadow .4s;
+}
+.facts:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:var(--shadow)}
+.facts h3{
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:14px;
+}
+.facts dl{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;font-size:14.5px}
+.facts dt{color:var(--dim)}
+.facts dd{text-align:right;font-variant-numeric:tabular-nums}
+
+/* --------------------------------------------------------------------------
+   7. CARDS + 3D TILT
+   -------------------------------------------------------------------------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px}
+
+.card{
+  position:relative;overflow:hidden;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px;
+  transition:border-color .3s,box-shadow .4s;
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+
+/* Light sweep that tracks the pointer across the card. */
+.card .shine{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),
+             rgba(255,255,255,.10),transparent 42%);
+  transition:opacity .35s ease;
+}
+.card:hover .shine{opacity:1}
+
+.card .icon{
+  width:40px;height:40px;border-radius:10px;background:var(--panel-2);
+  display:grid;place-items:center;font-size:19px;margin-bottom:16px;
+  border:1px solid var(--line);color:var(--accent);
+  transition:transform .45s var(--ease-out),color .3s,border-color .3s;
+}
+.card:hover .icon{transform:translateY(-3px) rotate(-8deg) scale(1.08);border-color:var(--accent)}
+.card h3{font-size:17px;margin-bottom:8px;letter-spacing:-.01em}
+.card p{color:var(--dim);font-size:14.5px}
+
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+.tag{
+  font-size:11.5px;padding:3px 10px;border-radius:20px;
+  background:var(--panel-2);border:1px solid var(--line);
+  color:var(--dim);letter-spacing:.03em;
+  transition:color .25s,border-color .25s,transform .25s var(--ease-out);
+}
+.card:hover .tag{border-color:var(--accent);color:var(--ink)}
+.tag:hover{transform:translateY(-2px)}
+
+/* --------------------------------------------------------------------------
+   8. WORK LIST
+   -------------------------------------------------------------------------- */
+.work{display:flex;flex-direction:column;gap:2px}
+.work-item{
+  position:relative;
+  display:grid;grid-template-columns:80px 1fr auto;gap:22px;align-items:baseline;
+  padding:20px 4px;border-bottom:1px solid var(--line);
+  transition:padding .35s var(--ease-out),background .3s;
+  overflow:hidden;
+}
+/* Accent bar that wipes in from the left on hover. */
+.work-item::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  transform:scaleY(0);transform-origin:top;
+  transition:transform .4s var(--ease-out);
+}
+.work-item:hover{background:var(--panel);padding-left:16px;padding-right:16px}
+.work-item:hover::before{transform:scaleY(1)}
+
+.work-item .yr{color:var(--dim);font-size:13.5px;font-variant-numeric:tabular-nums}
+.work-item .body{display:block}
+.work-item .t{font-weight:700;font-size:16.5px;display:block;transition:transform .35s var(--ease-out)}
+.work-item:hover .t{transform:translateX(6px)}
+.work-item .d{color:var(--dim);font-size:14px;margin-top:4px;display:block}
+.work-item .go{
+  color:var(--accent);font-size:19px;
+  opacity:0;transform:translateX(-10px);
+  transition:opacity .3s,transform .35s var(--ease-out);
+}
+.work-item:hover .go{opacity:1;transform:translateX(0)}
+@media(max-width:640px){
+  .work-item{grid-template-columns:1fr;gap:6px}
+  .work-item .go{display:none}
+}
+
+/* --------------------------------------------------------------------------
+   9. CONTACT + FOOTER
+   -------------------------------------------------------------------------- */
+.contact{text-align:center;padding:92px 0}
+.contact h2{font-size:clamp(26px,4vw,38px);letter-spacing:-.025em;font-weight:800}
+.contact p{color:var(--dim);margin:14px auto 30px;max-width:46ch}
+.contact .cta{justify-content:center}
+.socials{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.socials a{
+  font-size:14px;color:var(--dim);border:1px solid var(--line);
+  padding:9px 18px;border-radius:9px;
+  transition:color .25s,border-color .25s,transform .3s var(--ease-out),box-shadow .3s;
+}
+.socials a:hover{
+  color:var(--ink);border-color:var(--accent);
+  transform:translateY(-3px);box-shadow:0 10px 24px -14px var(--glow);
+}
+
+footer{
+  border-top:1px solid var(--line);padding:26px 0;
+  color:var(--dim);font-size:13.5px;text-align:center;
+  position:relative;z-index:2;
+}
+
+/* Back-to-top button */
+.to-top{
+  position:fixed;right:22px;bottom:22px;z-index:60;
+  width:44px;height:44px;border-radius:12px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--line);color:var(--ink);
+  font-size:17px;display:grid;place-items:center;
+  opacity:0;transform:translateY(18px) scale(.85);pointer-events:none;
+  transition:opacity .35s,transform .45s var(--ease-out),border-color .25s;
+}
+.to-top.show{opacity:1;transform:none;pointer-events:auto}
+.to-top:hover{border-color:var(--accent);transform:translateY(-3px)}
+
+/* --------------------------------------------------------------------------
+   10. MOTION SYSTEM
+   -------------------------------------------------------------------------- */
+
+/* Hero entrance: elements rise and fade in sequence via --i. */
+.anim{
+  opacity:0;
+  transform:translateY(26px);
+  animation:riseIn .9s var(--ease-out) forwards;
+  animation-delay:calc(var(--i,0) * 120ms + 120ms);
+}
+@keyframes riseIn{
+  from{opacity:0;transform:translateY(26px)}
+  to{opacity:1;transform:none}
+}
+
+/* Scroll reveal. --i staggers siblings. */
+.reveal{
+  opacity:0;
+  transform:translateY(30px);
+  transition:opacity .8s var(--ease-out),transform .8s var(--ease-out);
+  transition-delay:calc(var(--i,0) * 90ms);
+}
+.reveal.in{opacity:1;transform:none}
+
+/* If JS never runs, nothing should stay invisible. */
+.no-js .anim,.no-js .reveal{opacity:1;transform:none;animation:none}
+
+/* Honour the OS setting. Motion off, everything visible, no exceptions. */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+  html{scroll-behavior:auto}
+  .anim,.reveal{opacity:1 !important;transform:none !important}
+  .aurora,.grain,.spotlight,.field,.cursor-dot,.cursor-ring{display:none}
+  .ticker-track{animation:none}
+  .preloader{display:none}
+  .split .word > span{transform:none !important;opacity:1 !important;animation:none !important}
+}

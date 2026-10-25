@@ -1,0 +1,19 @@
+# macOS / Windows junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Python cache from make_icons.py
+__pycache__/
+*.pyc
+
+# Deploy tooling
+.vercel/
+.netlify/
+.wrangler/
+node_modules/
